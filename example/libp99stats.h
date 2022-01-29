@@ -77,6 +77,7 @@ extern "C" {
 #endif
 
 extern void P99Init(int c_totalRequests, int c_jobCount);
+extern int P99AvgTs();
 extern long long int P99BeginTrans();
 extern void P99EndTrans(int c_jobIndex, long long int c_transTimer, int c_transCode);
 extern void P99Stats();

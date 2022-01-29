@@ -9,7 +9,6 @@ package main
 import "C"
 
 import (
-	"fmt"
 	"github.com/montanaflynn/stats"
 	"github.com/smallnest/rpcx/log"
 	"sync/atomic"
@@ -31,13 +30,18 @@ var (
 
 //export P99Init
 func P99Init(c_totalRequests C.int, c_jobCount C.int) {
-	startTime = time.Now().UnixNano()               //初始化进程事务开始时间
-	totalRequests = int(c_totalRequests)            //配置总事务数
-	jobCount = int(c_jobCount)                      //作业总数
-	avgRequests = totalRequests / jobCount          //平均事务数
-	tookTimes = make([][]int64, jobCount, jobCount) //初始化这个切片，它用来记录每个trans的时间差
+	startTime = time.Now().UnixNano()                 //初始化进程事务开始时间
+	totalRequests = int(c_totalRequests)              //配置总事务数
+	jobCount = int(c_jobCount)                        //作业总数
+	avgRequests = totalRequests / jobCount            //平均事务数
+	tookTimes = make([][]int64, jobCount-1, jobCount) //初始化这个切片，它用来记录每个trans的时间差
 	dt := make([]int64, 0, avgRequests)
 	tookTimes = append(tookTimes, dt) //会重新构造切片结构
+}
+
+//export P99AvgTs
+func P99AvgTs() C.int {
+	return C.int(avgRequests)
 }
 
 //export P99BeginTrans
@@ -60,9 +64,9 @@ func P99EndTrans(c_jobIndex C.int, c_transTimer C.longlong, c_transCode C.int) {
 //export P99Stats
 func P99Stats() {
 	for n, v := range tookTimes {
-		fmt.Println(n, ":", v)
+		log.Infof("%v : %v", n, v)
 	}
-	//Stats(int64(c_startTime), int(c_totalRequests), d, uint64(c_trans), uint64(c_transOK))
+	Stats(startTime, totalRequests, tookTimes, trans, transOK)
 }
 
 // Stats用作统计结果出口
