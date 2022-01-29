@@ -62,9 +62,11 @@ func P99EndTrans(c_jobIndex C.int, c_transTimer C.longlong, c_transCode C.int) {
 }
 
 //export P99Stats
-func P99Stats() {
-	for n, v := range tookTimes {
-		log.Infof("%v : %v", n, v)
+func P99Stats(c_putDiff C.int) {
+	if c_putDiff == 1 {
+		for n, v := range tookTimes {
+			log.Infof("trans unit diff %v : %v", n, v)
+		}
 	}
 	Stats(startTime, totalRequests, tookTimes, trans, transOK)
 }

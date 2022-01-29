@@ -32,12 +32,14 @@ int main()
 		for (int j = 0; j < avg; j++) {
 			rTime = P99BeginTrans();	//启用事务计时
 			//printf("%llu\n", rTime);
-			waitns(j+1);
+			//waitns(j+1);
 			P99EndTrans(i, rTime, 1);	//统计事务时间差
 		}
 	}
 
-	//汇总报告进行计算输出
-	P99Stats();
+	//汇总报告进行计算输出，1 输出事务单元所有时间差，0 不输出事务单元时间差
+	P99Stats(0);
+    printf("\n#### 两种格式比较 ####\n\n");
+    P99Stats(1);
 	return 0;
 }
