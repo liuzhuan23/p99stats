@@ -11,6 +11,7 @@ import "C"
 import (
 	"github.com/montanaflynn/stats"
 	"github.com/smallnest/rpcx/log"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -26,6 +27,7 @@ var (
 	tookTimes     [][]int64 //每个事务的调用时间
 	trans         uint64    //事务完成一次（无论失败成功）
 	transOK       uint64    //成功事务数
+	muX           sync.Mutex
 )
 
 //export P99Init
@@ -51,6 +53,8 @@ func P99BeginTrans() C.longlong {
 
 //export P99EndTrans
 func P99EndTrans(c_jobIndex C.int, c_transTimer C.longlong, c_transCode C.int) {
+	muX.Lock()
+	defer muX.Unlock()
 	t := time.Now().UnixNano() - int64(c_transTimer)
 	idx := int(c_jobIndex)
 	tookTimes[idx] = append(tookTimes[idx], t)
